@@ -9,7 +9,7 @@ RUN pnpm run build:deploy
 
 FROM node:22-slim AS runner
 WORKDIR /app
-RUN corepack enable
+RUN corepack enable && corepack prepare pnpm@9.15.9 --activate
 ENV NODE_ENV=production
 COPY --from=build /app /app
 EXPOSE 3000
