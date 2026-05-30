@@ -33,6 +33,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
+app.get("/", (_req, res) => {
+  res.send("Frontend route reached");
+});
+
 // In production, serve the compiled React app from the same Express server.
 // This lets Render/Railway/Fly/etc. run one web service instead of separate
 // frontend and backend services.
