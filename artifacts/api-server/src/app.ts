@@ -36,7 +36,7 @@ app.use("/api", router);
 // In production, serve the compiled React app from the same Express server.
 // This lets Render/Railway/Fly/etc. run one web service instead of separate
 // frontend and backend services.
-const staticDir = process.env.STATIC_DIR ?? path.resolve(process.cwd(), "artifacts/book-inventory/dist/public");
+const staticDir = path.resolve(process.cwd(), "artifacts/book-inventory/dist");
 if (process.env.NODE_ENV === "production" && existsSync(staticDir)) {
   app.use(express.static(staticDir));
 
