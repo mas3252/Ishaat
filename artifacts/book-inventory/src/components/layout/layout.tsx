@@ -14,7 +14,7 @@ export function Layout({ children }: { children: ReactNode }) {
         {/* Mobile Header */}
         <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm md:hidden">
           <MobileSidebar />
-          <div className="flex-1 font-serif font-semibold text-primary">Athenaeum</div>
+          <div className="flex-1 font-serif font-semibold text-primary">Edmonton Library</div>
         </header>
 
         <main className="flex-1">
