@@ -1,0 +1,558 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Book Inventory API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: books
+    description: Book inventory management
+  - name: members
+    description: Library member management
+  - name: loans
+    description: Book loan management
+  - name: dashboard
+    description: Dashboard summaries
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /books:
+    get:
+      operationId: listBooks
+      tags: [books]
+      summary: List all books
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: available
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of books
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Book"
+    post:
+      operationId: createBook
+      tags: [books]
+      summary: Add a book to inventory
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+
+  /books/isbn/{isbn}:
+    get:
+      operationId: lookupIsbn
+      tags: [books]
+      summary: Lookup book metadata by ISBN
+      parameters:
+        - name: isbn
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Book metadata from external source
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IsbnLookupResult"
+        "404":
+          description: ISBN not found
+
+  /books/{id}:
+    get:
+      operationId: getBook
+      tags: [books]
+      summary: Get a book by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Book detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateBook
+      tags: [books]
+      summary: Update a book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookUpdate"
+      responses:
+        "200":
+          description: Updated book
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+    delete:
+      operationId: deleteBook
+      tags: [books]
+      summary: Delete a book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /books/{id}/inventory:
+    post:
+      operationId: adjustInventory
+      tags: [books]
+      summary: Add or subtract copies from inventory
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryAdjustment"
+      responses:
+        "200":
+          description: Updated book
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+
+  /members:
+    get:
+      operationId: listMembers
+      tags: [members]
+      summary: List all members
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Member"
+    post:
+      operationId: createMember
+      tags: [members]
+      summary: Create a new member
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+
+  /members/{id}:
+    get:
+      operationId: getMember
+      tags: [members]
+      summary: Get a member by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Member detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateMember
+      tags: [members]
+      summary: Update a member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MemberUpdate"
+      responses:
+        "200":
+          description: Updated member
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Member"
+    delete:
+      operationId: deleteMember
+      tags: [members]
+      summary: Delete a member
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /loans:
+    get:
+      operationId: listLoans
+      tags: [loans]
+      summary: List loans
+      parameters:
+        - name: memberId
+          in: query
+          schema:
+            type: integer
+        - name: bookId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, returned]
+      responses:
+        "200":
+          description: List of loans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Loan"
+    post:
+      operationId: createLoan
+      tags: [loans]
+      summary: Borrow a book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoanInput"
+      responses:
+        "201":
+          description: Loan created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+        "400":
+          description: No copies available
+
+  /loans/{id}/return:
+    patch:
+      operationId: returnLoan
+      tags: [loans]
+      summary: Return a borrowed book
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Loan marked returned
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Loan"
+
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get dashboard summary stats
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Book:
+      type: object
+      required: [id, isbn, title, author, totalCopies, availableCopies, createdAt]
+      properties:
+        id:
+          type: integer
+        isbn:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: ["string", "null"]
+        coverImageUrl:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        genre:
+          type: ["string", "null"]
+        publishedYear:
+          type: ["integer", "null"]
+        totalCopies:
+          type: integer
+        availableCopies:
+          type: integer
+        createdAt:
+          type: string
+
+    BookInput:
+      type: object
+      required: [isbn, title, author, totalCopies]
+      properties:
+        isbn:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: string
+        coverImageUrl:
+          type: string
+        description:
+          type: string
+        genre:
+          type: string
+        publishedYear:
+          type: integer
+        totalCopies:
+          type: integer
+
+    BookUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: string
+        coverImageUrl:
+          type: string
+        description:
+          type: string
+        genre:
+          type: string
+        publishedYear:
+          type: integer
+
+    InventoryAdjustment:
+      type: object
+      required: [type, quantity]
+      properties:
+        type:
+          type: string
+          enum: [add, subtract]
+        quantity:
+          type: integer
+          minimum: 1
+        notes:
+          type: string
+
+    IsbnLookupResult:
+      type: object
+      required: [isbn, title, author]
+      properties:
+        isbn:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        publisher:
+          type: ["string", "null"]
+        coverImageUrl:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        genre:
+          type: ["string", "null"]
+        publishedYear:
+          type: ["integer", "null"]
+
+    Member:
+      type: object
+      required: [id, memberCode, name, createdAt]
+      properties:
+        id:
+          type: integer
+        memberCode:
+          type: string
+        name:
+          type: string
+        email:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        activeLoansCount:
+          type: integer
+        createdAt:
+          type: string
+
+    MemberInput:
+      type: object
+      required: [memberCode, name]
+      properties:
+        memberCode:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+
+    MemberUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+
+    Loan:
+      type: object
+      required: [id, bookId, memberId, status, borrowedAt]
+      properties:
+        id:
+          type: integer
+        bookId:
+          type: integer
+        memberId:
+          type: integer
+        status:
+          type: string
+          enum: [active, returned]
+        borrowedAt:
+          type: string
+        returnedAt:
+          type: ["string", "null"]
+        book:
+          $ref: "#/components/schemas/Book"
+        member:
+          $ref: "#/components/schemas/Member"
+
+    LoanInput:
+      type: object
+      required: [bookId, memberId]
+      properties:
+        bookId:
+          type: integer
+        memberId:
+          type: integer
+
+    DashboardStats:
+      type: object
+      required: [totalBooks, totalCopies, availableCopies, borrowedCopies, totalMembers, activeLoans, recentLoans]
+      properties:
+        totalBooks:
+          type: integer
+        totalCopies:
+          type: integer
+        availableCopies:
+          type: integer
+        borrowedCopies:
+          type: integer
+        totalMembers:
+          type: integer
+        activeLoans:
+          type: integer
+        recentLoans:
+          type: array
+          items:
+            $ref: "#/components/schemas/Loan"

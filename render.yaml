@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: book-inventory
+    env: node
+    plan: free
+    buildCommand: corepack enable && pnpm install --frozen-lockfile=false && BASE_PATH=/ pnpm run build:deploy
+    startCommand: NODE_ENV=production pnpm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BASE_PATH
+        value: /
+      - key: DATABASE_URL
+        sync: false
