@@ -53,7 +53,7 @@ export function Sidebar() {
       <div className="flex h-16 shrink-0 items-center px-6 border-b">
         <div className="flex items-center gap-2 text-primary">
           <Library className="h-6 w-6" />
-          <span className="font-serif font-bold text-lg tracking-tight">Athenaeum</span>
+          <span className="font-serif font-bold text-lg tracking-tight">Edmonton Library</span>
         </div>
       </div>
       <div className="flex flex-1 flex-col overflow-y-auto px-4 py-6">
@@ -80,7 +80,7 @@ export function MobileSidebar() {
         <div className="flex h-16 shrink-0 items-center px-6 border-b">
           <div className="flex items-center gap-2 text-primary">
             <Library className="h-6 w-6" />
-            <span className="font-serif font-bold text-lg tracking-tight">Athenaeum</span>
+            <span className="font-serif font-bold text-lg tracking-tight">Edmonton Library</span>
           </div>
         </div>
         <div className="px-4 py-6">
