@@ -33,18 +33,16 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);
 
-app.get("/", (_req, res) => {
-  res.send("Frontend route reached");
-});
+const staticDir =
+  process.env.STATIC_DIR ??
+  path.resolve(import.meta.dirname, "../../book-inventory/dist/public");
 
-// In production, serve the compiled React app from the same Express server.
-// This lets Render/Railway/Fly/etc. run one web service instead of separate
-// frontend and backend services.
-const staticDir = path.resolve(process.cwd(), "artifacts/book-inventory/dist");
+console.log("STATIC_DIR =", staticDir);
+console.log("EXISTS =", existsSync(staticDir));
+
 if (process.env.NODE_ENV === "production" && existsSync(staticDir)) {
   app.use(express.static(staticDir));
 
-  // React client-side routes such as /books/1 should still load index.html.
   app.get(/^(?!\/api).*/, (_req, res) => {
     res.sendFile(path.join(staticDir, "index.html"));
   });
